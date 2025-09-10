@@ -1,5 +1,6 @@
 
 
+
 import { GoogleGenAI, GenerateContentResponse, Modality, Part, Content } from "@google/genai";
 import type { Message, Settings } from '../types';
 import { isImageMimeType } from './utils';
@@ -99,7 +100,7 @@ export const generateContent = async (
     } catch (error) {
         console.error("API call failed:", error);
          if (error instanceof Error && error.message.includes('API key not valid')) {
-            throw new Error('Your API key is not valid. Please check it in the settings.');
+            throw new Error('Your API key is not valid. Please check your API_KEY environment variable.');
         }
         throw error;
     }
