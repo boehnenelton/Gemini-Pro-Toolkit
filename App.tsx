@@ -84,6 +84,13 @@ function App() {
   const handleSendMessage = useCallback(async (prompt: string, files: ProcessedFile[]) => {
     if (appStatus === 'sending') return;
 
+    if (!settings.apiKey) {
+      setErrorMessage("API Key is not set. Please set it in the settings.");
+      setAppStatus('error');
+      setIsSettingsOpen(true);
+      return;
+    }
+
     if (!settings.conversationMode) {
       setChatSessionId(generateNewChatSessionId());
     }
@@ -252,28 +259,29 @@ function App() {
   };
 
   const getIntroMessages = (): Message[] => {
+    const introMessages: Message[] = [];
     if (messages.length === 0 && settings.conversationMode) {
-      return [
-        {
+      introMessages.push({
           id: 'welcome-msg',
           role: 'system',
           content: 'WELCOME TO GEMINI PROTOOLS. THIS IS THE BEGINNING OF A NEW CHAT.',
           timestamp: new Date().toISOString(),
-        },
-        {
-          id: 'api-key-alert',
-          role: 'system',
-          content: 'API KEY NOTICE - ENSURE YOUR API_KEY IS SET IN THE ENVIRONMENT TO BEGIN.',
-          timestamp: new Date().toISOString(),
-          isAlert: true,
-        },
-      ];
+      });
     }
-    return [];
+    if (!settings.apiKey) {
+      introMessages.push({
+        id: 'api-key-alert',
+        role: 'system',
+        content: 'API KEY REQUIRED - Please open the settings and enter your Google Gemini API key to begin.',
+        timestamp: new Date().toISOString(),
+        isAlert: true,
+      });
+    }
+    return introMessages;
   };
 
   const messagesToDisplay = settings.conversationMode 
-    ? [...getIntroMessages(), ...messages.filter(m => m.role !== 'user')] 
+    ? [...getIntroMessages(), ...messages] 
     : (latestSingleResponse ? [latestSingleResponse] : []);
 
 
@@ -288,7 +296,6 @@ function App() {
       <div className="flex-grow overflow-hidden">
         <ChatInterface 
           messages={messagesToDisplay}
-          userMessages={messages.filter(m => m.role === 'user')}
           onSendMessage={handleSendMessage}
           status={appStatus}
           settings={settings}

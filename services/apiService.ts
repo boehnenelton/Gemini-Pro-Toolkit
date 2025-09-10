@@ -1,28 +1,6 @@
-
-
-
 import { GoogleGenAI, GenerateContentResponse, Modality, Part, Content } from "@google/genai";
 import type { Message, Settings } from '../types';
 import { isImageMimeType } from './utils';
-
-let ai: GoogleGenAI | null = null;
-
-// FIX: Update getAiClient to use process.env.API_KEY directly as per guidelines.
-const getAiClient = (): GoogleGenAI => {
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-        throw new Error("API Key not found in environment variables (process.env.API_KEY). Please set it up before running the application.");
-    }
-
-    // Since API key from env var is constant, no need to re-create client.
-    if (ai) {
-        return ai;
-    }
-
-    ai = new GoogleGenAI({ apiKey });
-    return ai;
-};
-
 
 export const generateContent = async (
     history: Message[],
@@ -30,8 +8,11 @@ export const generateContent = async (
     settings: Settings
 ): Promise<GenerateContentResponse> => {
     
-    // FIX: Removed apiKey from parameters as it's now handled by getAiClient directly.
-    const client = getAiClient();
+    if (!settings.apiKey) {
+      throw new Error("API Key not provided. Please set it in the application settings.");
+    }
+    
+    const ai = new GoogleGenAI({ apiKey: settings.apiKey });
     const modelToUse = settings.model;
 
     const userMessageParts: Part[] = [{ text: newMessage.content }];
@@ -95,12 +76,12 @@ export const generateContent = async (
     };
 
     try {
-        const response = await client.models.generateContent(request);
+        const response = await ai.models.generateContent(request);
         return response;
     } catch (error) {
         console.error("API call failed:", error);
          if (error instanceof Error && error.message.includes('API key not valid')) {
-            throw new Error('Your API key is not valid. Please check your API_KEY environment variable.');
+            throw new Error('Your API key is not valid. Please check it in the settings.');
         }
         throw error;
     }

@@ -9,7 +9,6 @@ import { AVAILABLE_MODELS } from '../constants';
 
 interface ChatInterfaceProps {
     messages: Message[];
-    userMessages: Message[]; // We need the user messages to display them in conversation mode
     onSendMessage: (prompt: string, files: ProcessedFile[]) => void;
     status: AppStatus;
     settings: Settings;
@@ -56,7 +55,7 @@ const MarkdownRenderer = ({ content }: { content: string }) => (
 );
 
 const ChatInterface: React.FC<ChatInterfaceProps> = (props) => {
-    const { messages, userMessages, onSendMessage, status, settings, onSettingsChange, attachedFiles, onAttachmentModalOpen, chatSessionId, onNewChat } = props;
+    const { messages, onSendMessage, status, settings, onSettingsChange, attachedFiles, onAttachmentModalOpen, chatSessionId, onNewChat } = props;
     const [prompt, setPrompt] = useState('');
     const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -95,10 +94,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = (props) => {
     };
     
     const handleExport = (format: 'md' | 'txt') => {
-        const allMessages = [...userMessages, ...messages];
-        const content = selectedMessageIds.map(id => {
-            const msg = allMessages.find(m => m.id === id);
-            if (!msg) return '';
+        const chronologicallySortedMessages = [...messages].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        const selectedMessagesInOrder = chronologicallySortedMessages.filter(m => selectedMessageIds.includes(m.id));
+
+        const content = selectedMessagesInOrder.map(msg => {
             const header = `${msg.role.toUpperCase()} (${new Date(msg.timestamp).toLocaleString()})`;
             return `${header}\n-----------------\n${msg.content}`;
         }).join('\n\n');
@@ -168,8 +167,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = (props) => {
         );
     }
     
-    // Combine and sort messages for conversation mode
-    const allMessages = [...userMessages, ...messages].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const allMessages = [...messages].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
     return (
         <div className="flex flex-col h-full bg-white text-black">

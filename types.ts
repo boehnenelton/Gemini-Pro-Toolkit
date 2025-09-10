@@ -20,7 +20,7 @@ export interface Message {
 }
 
 export interface Settings {
-  // FIX: Removed apiKey to enforce usage of environment variable
+  apiKey: string;
   model: string;
   systemInstruction: string;
   temperature: number;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { XIcon } from './icons';
 
@@ -20,7 +19,7 @@ const AboutSettingsModal: React.FC<AboutSettingsModalProps> = ({ isOpen, onClose
                     </button>
                 </div>
                 <div className="space-y-2 text-sm max-h-[70vh] overflow-y-auto p-2">
-                    <p><strong>API Key:</strong> Your secret key for accessing the Google Gemini API is read from the `process.env.API_KEY` environment variable for security.</p>
+                    <p><strong>API Key:</strong> Your secret key for accessing the Google Gemini API. It is saved in your browser's local storage and is required for the app to function.</p>
                     <p><strong>Model:</strong> Select the Gemini model to use for generating responses. Different models have different capabilities and costs.</p>
                     <p><strong>System Instruction:</strong> A top-level instruction that guides the model's behavior for the entire conversation. It sets the context, persona, or rules for the AI.</p>
                     <p><strong>Temperature:</strong> Controls randomness. Lower values (e.g., 0.2) make the output more deterministic and focused. Higher values (e.g., 0.9) make it more creative and diverse.</p>

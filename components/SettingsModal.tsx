@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import type { Settings } from '../types';
-import { XIcon, InfoIcon, SaveIcon } from './icons';
+import { XIcon, InfoIcon, SaveIcon, KeyIcon } from './icons';
 import { AVAILABLE_MODELS } from '../constants';
 
 interface SettingsModalProps {
@@ -56,9 +55,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onSave, 
                 </div>
 
                 <div className="overflow-y-auto flex-grow p-2 space-y-2 text-sm">
-                    <div className="bg-yellow-100 border border-yellow-300 text-yellow-800 p-2 mt-2 text-xs rounded-none">
-                        <p className="font-bold">API Key Configuration Required</p>
-                        <p>For security, your Google Gemini API Key must be set as an environment variable named <code className="font-mono bg-yellow-200 px-1">API_KEY</code> where this application is running. It cannot be set in this interface. API calls will fail until the key is correctly configured.</p>
+                    <div>
+                        <label className="block mb-1 font-semibold">Google Gemini API Key</label>
+                        <div className="relative">
+                            <KeyIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                            <input
+                                type="password"
+                                name="apiKey"
+                                value={settings.apiKey}
+                                onChange={handleChange}
+                                placeholder="Enter your API Key here"
+                                className="w-full p-2 pl-8 bg-white text-black border border-neutral-300 rounded-none"
+                            />
+                        </div>
+                        <p className="text-xs text-neutral-500 mt-1">Your key is stored securely in your browser's local storage and is never sent anywhere else.</p>
                     </div>
 
                     <div>
