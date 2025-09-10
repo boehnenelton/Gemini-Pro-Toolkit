@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Pro Toolkit ",
+  "description": "An advanced chat interface for Gemini that allows processing entire zip archives, managing conversation history, and customizing model parameters. Features include persistent settings, API key management, and the ability to download generated files as a zip archive.",
+  "requestFramePermissions": []
+}
