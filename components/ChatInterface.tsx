@@ -20,6 +20,41 @@ interface ChatInterfaceProps {
     onNewChat: () => void;
 }
 
+const MarkdownRenderer = ({ content }: { content: string }) => (
+    <ReactMarkdown
+        children={content}
+        remarkPlugins={[remarkGfm]}
+        components={{
+            // FIX: The `inline` prop is not available in some versions of react-markdown's types.
+            // The logic is simplified to check for a language match, which is sufficient to identify code blocks.
+            code({ node, className, children, ...props }) {
+                const match = /language-(\w+)(?:[:\s]([\w./-]+))?/.exec(className || '');
+                if (match) {
+                    const language = match[1];
+                    const filePath = match[2];
+                    return (
+                        <CodeBlock language={language} filePath={filePath}>
+                            {String(children).replace(/\n$/, '')}
+                        </CodeBlock>
+                    );
+                }
+                return (
+                    <code className="bg-neutral-200 text-black px-1 rounded-none font-mono text-xs" {...props}>
+                        {children}
+                    </code>
+                );
+            },
+            p: ({node, ...props}) => <p className="mb-2" {...props} />,
+            ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
+            ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
+            li: ({node, ...props}) => <li className="ml-4" {...props} />,
+            h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-2 border-b border-black" {...props} />,
+            h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-2 border-b border-black" {...props} />,
+            h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2" {...props} />,
+        }}
+    />
+);
+
 const ChatInterface: React.FC<ChatInterfaceProps> = (props) => {
     const { messages, userMessages, onSendMessage, status, settings, onSettingsChange, attachedFiles, onAttachmentModalOpen, chatSessionId, onNewChat } = props;
     const [prompt, setPrompt] = useState('');
@@ -104,8 +139,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = (props) => {
                         <span>-</span>
                         { !isUser && <button onClick={() => handleCopy(message.content)} className="opacity-50 hover:opacity-100"><CopyIcon className="w-4 h-4"/></button> }
                     </div>
-                    <div className={`mt-1 whitespace-pre-wrap ${isAlert ? 'text-red-500' : ''}`}>
-                        {message.content}
+                    <div className={`mt-1 ${isAlert ? 'text-red-500' : ''}`}>
+                        <MarkdownRenderer content={message.content} />
                     </div>
                 </div>
             </div>
@@ -126,8 +161,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = (props) => {
                         className="h-4 w-4 rounded-none accent-black"
                     />
                 </div>
-                <div className="mt-2 whitespace-pre-wrap">
-                    {message.content}
+                <div className="mt-2">
+                    <MarkdownRenderer content={message.content} />
                 </div>
             </div>
         );
